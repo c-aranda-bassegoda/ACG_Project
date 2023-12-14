@@ -18,12 +18,15 @@ class Vertex {
   HalfEdge* prevBoundaryHalfEdge() const;
   bool isBoundaryVertex() const;
   void recalculateValence();
+  void recalculateSharpInsidence();
   void debugInfo() const;
 
   QVector3D coords;
   HalfEdge* out;
   int valence = 0;
   int index;
+
+  int insidentSharpEdges=0;
 };
 
 #endif  // VERTEX

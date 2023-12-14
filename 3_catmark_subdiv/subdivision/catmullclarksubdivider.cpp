@@ -69,6 +69,7 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
 
   // Face Points
   for (int f = 0; f < controlMesh.numFaces(); f++) {
+    // face points are always at centroids regardless of sharpness
     QVector3D coords = facePoint(faces[f]);
     int i = controlMesh.numVerts() + faces[f].index;
     // Face points always inherit the valence of the face
@@ -78,11 +79,14 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
 
   // Edge Points
   QVector<HalfEdge> &halfEdges = controlMesh.getHalfEdges();
+  halfEdges[1].setSharpness(3);
+  qDebug()<<halfEdges[1].origin->valence;
   for (int h = 0; h < controlMesh.numHalfEdges(); h++) {
     HalfEdge currentEdge = halfEdges[h];
     // Only create a new vertex per set of halfEdges (i.e. once per undirected
     // edge)
-    if (h > currentEdge.twinIdx()) {
+    int sharpness = currentEdge.getSharpness();
+    if (h > currentEdge.twinIdx() /*&& sharpness == 0*/) { // smooth rule
       int v = controlMesh.numVerts() + controlMesh.numFaces() +
               currentEdge.edgeIdx();
       int valence;
@@ -95,10 +99,15 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
         valence = 4;
       }
       newVertices[v] = Vertex(coords, nullptr, valence, v);
+    } else { // sharp rule
+      // TODO: edge point is placed at the edge midpoint
+      currentEdge.setSharpness(sharpness-1);
     }
   }
-
   // Vertex Points
+  // A vertex with one sharp edge (dart) is placed using the smooth vertex rule.
+  // A vertex with two incident sharp edges (crease vertex) is computed with the crease rule.
+  // A vertex with three or more incident sharp edges (corner) doesn't move.
   for (int v = 0; v < controlMesh.numVerts(); v++) {
     QVector3D coords;
     if (vertices[v].isBoundaryVertex()) {

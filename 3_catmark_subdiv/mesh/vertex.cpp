@@ -105,6 +105,28 @@ void Vertex::recalculateValence() {
 }
 
 /**
+ * @brief Vertex::recalculateSharpInsidence Recalculates the incident
+ * sharp edges of this vertex.
+ */
+void Vertex::recalculateSharpInsidence() {
+  HalfEdge* currentEdge = out->prev->twin;
+  int n = (out->getSharpness()==0 ? 0 : 1);
+  while (currentEdge != nullptr && currentEdge != out) {
+    currentEdge = currentEdge->prev->twin;
+    if(currentEdge->getSharpness()>0)
+      n++;
+  }
+  currentEdge = out->twin;
+  while (currentEdge != nullptr && currentEdge->next != out) {
+    currentEdge = currentEdge->next->twin;
+    if(currentEdge->getSharpness()>0)
+      n++;
+  }
+  insidentSharpEdges = n;
+  qDebug() << "sharpness: " << n;
+}
+
+/**
  * @brief Vertex::debugInfo Prints some debug info of this vertex.
  */
 void Vertex::debugInfo() const {

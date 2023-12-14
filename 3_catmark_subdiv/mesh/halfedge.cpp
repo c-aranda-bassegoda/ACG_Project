@@ -3,6 +3,7 @@
 #include <QDebug>
 
 #include "face.h"
+#include "vertex.h"
 
 /**
  * @brief HalfEdge::HalfEdge Initializes an empty half-edge.
@@ -136,5 +137,6 @@ bool HalfEdge::isBoundaryEdge() const { return twin == nullptr; }
 void HalfEdge::setSharpness(int sharp){
   sharpness = sharp;
   twin->sharpness = sharp;
+  origin->recalculateSharpInsidence();
 }
 
