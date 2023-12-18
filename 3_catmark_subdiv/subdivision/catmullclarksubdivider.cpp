@@ -104,11 +104,10 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
         }
       } else { // sharp rule
         // A sharp edge point is always placed at the edge midpoint
+        coords = edgeMidPoint(currentEdge);
         if (currentEdge.isBoundaryEdge()) {
-          coords = edgeMidPoint(currentEdge);
           valence = 3;
         } else {
-          coords = edgeMidPoint(currentEdge);
           valence = 4;
         }
         currentEdge.setSharpness(sharpness-1);
@@ -128,12 +127,15 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
       } else {
         coords = vertexPoint(vertices[v]);
       }
+      qDebug() << "dart";
     } else if (sharpCount == 2){ //crease
       // A vertex with two incident sharp edges (crease vertex) is computed with the crease rule.
-
+      coords = creasePoint(vertices[v]);
+      qDebug() << "crease";
     } else { //corner
       // A vertex with three or more incident sharp edges (corner) doesn't move.
       coords = vertices[v].coords;
+      qDebug() << "corner";
     }
     newVertices[v] = Vertex(coords, nullptr, vertices[v].valence, v);
   }
@@ -173,6 +175,24 @@ QVector3D CatmullClarkSubdivider::vertexPoint(const Vertex &vertex) const {
   R /= n;
   // See Equation 1 of the aforementioned paper
   return (Q + 2 * R + (vertex.coords * (n - 3.0f))) / n;
+}
+
+/**
+ * @brief CatmullClarkSubdivider::creasePoint
+ * @param vertex
+ * @return
+ */
+QVector3D CatmullClarkSubdivider::creasePoint(const Vertex &vertex) const {
+  QVector3D newVertex;
+  QVector <HalfEdge*> sharpEdges = vertex.getSharpEdges();
+  HalfEdge* R = sharpEdges.at(0);
+  HalfEdge* Q = sharpEdges.at(1);
+
+  QVector3D midR = R->twin->origin->coords;
+  QVector3D midQ = Q->twin->origin->coords;
+
+  newVertex = 6*vertex.coords + midR + midQ;
+  return newVertex / 8;
 }
 
 /**

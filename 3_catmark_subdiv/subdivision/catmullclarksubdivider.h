@@ -26,6 +26,7 @@ class CatmullClarkSubdivider : public Subdivider {
   QVector3D edgeMidPoint(const HalfEdge& edge) const;
   QVector3D vertexPoint(const Vertex& vertex) const;
   QVector3D boundaryVertexPoint(const Vertex& vertex) const;
+  QVector3D creasePoint(const Vertex &vertex) const;
 };
 
 #endif  // CATMULL_CLARK_SUBDIVIDER_H
