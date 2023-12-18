@@ -16,9 +16,10 @@ class Vertex {
 
   HalfEdge* nextBoundaryHalfEdge() const;
   HalfEdge* prevBoundaryHalfEdge() const;
+  QVector<HalfEdge*> getSharpEdges() const;
   bool isBoundaryVertex() const;
   void recalculateValence();
-  void recalculateSharpInsidence();
+  void recalculateSharpIncidence();
   void debugInfo() const;
 
   QVector3D coords;
@@ -26,7 +27,7 @@ class Vertex {
   int valence = 0;
   int index;
 
-  int insidentSharpEdges=0;
+  int incidentSharpEdges=0;
 };
 
 #endif  // VERTEX

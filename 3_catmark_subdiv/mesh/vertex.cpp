@@ -86,6 +86,7 @@ bool Vertex::isBoundaryVertex() const {
   return false;
 }
 
+// UNUSED??
 /**
  * @brief Vertex::recalculateValence Recalculates the valence of this vertex.
  */
@@ -96,41 +97,48 @@ void Vertex::recalculateValence() {
     currentEdge = currentEdge->prev->twin;
     n++;
   }
-  currentEdge = out->twin;
-  while (currentEdge != nullptr && currentEdge->next != out) {
-    currentEdge = currentEdge->next->twin;
-    n++;
-  }
+// WHY IS THIS HERE?
+//  currentEdge = out->twin;
+//  while (currentEdge != nullptr && currentEdge->next != out) {
+//    currentEdge = currentEdge->next->twin;
+//    n++;
+//    qDebug() << "v:: " << n;
+//  }
   valence = n;
 }
 
 /**
- * @brief Vertex::recalculateSharpInsidence Recalculates the incident
+ * @brief Vertex::recalculateSharpIncidence Recalculates the incident
  * sharp edges of this vertex.
  */
-void Vertex::recalculateSharpInsidence() {
+void Vertex::recalculateSharpIncidence() {
   HalfEdge* currentEdge = out->prev->twin;
-  int n = (out->getSharpness()>0 ? 1 : 0);
-  qDebug() << out->getSharpness() << n;
+  int n = 0;
   while (currentEdge != nullptr && currentEdge != out) {
     currentEdge = currentEdge->prev->twin;
     if(currentEdge->getSharpness()>0){
       n++;
     }
-    qDebug() << ": " << n;
   }
-  currentEdge = out->twin;
-  while (currentEdge != nullptr && currentEdge->next != out) {
-    currentEdge = currentEdge->next->twin;
-    if(currentEdge->getSharpness()>0){
-      n++;
-    }
-    qDebug() << ":: " << n;
-  }
-  insidentSharpEdges = n;
-  qDebug() << "sharpness: " << n;
-  qDebug() << "valence: " << valence;
+  incidentSharpEdges = n;
+}
 
+/**
+ * @brief Vertex::getSharpEdges gets the sharp edges
+ * incident to a vertex point
+ * @return
+ */
+QVector<HalfEdge*> Vertex::getSharpEdges() const {
+  QVector<HalfEdge*> sharpEdges;
+  HalfEdge* currentEdge = out->prev->twin;
+  int n = 0;
+  while (currentEdge != nullptr && currentEdge != out) {
+    currentEdge = currentEdge->prev->twin;
+    if(currentEdge->getSharpness()>0){
+      sharpEdges.append(currentEdge);
+    }
+  }
+  return sharpEdges;
 }
 
 /**
