@@ -22,11 +22,11 @@ class CatmullClarkSubdivider : public Subdivider {
                        int twinIdx) const;
 
   QVector3D facePoint(const Face& face) const;
-  QVector3D edgePoint(const HalfEdge& edge) const;
+  QVector3D smoothEdgePoint(const HalfEdge& edge) const;
   QVector3D edgeMidPoint(const HalfEdge& edge) const;
-  QVector3D vertexPoint(const Vertex& vertex) const;
+  QVector3D smoothVertexPoint(const Vertex& vertex) const;
   QVector3D boundaryVertexPoint(const Vertex& vertex) const;
-  QVector3D creasePoint(const Vertex &vertex) const;
+  QVector3D creaseVertexPoint(const Vertex &vertex) const;
 };
 
 #endif  // CATMULL_CLARK_SUBDIVIDER_H

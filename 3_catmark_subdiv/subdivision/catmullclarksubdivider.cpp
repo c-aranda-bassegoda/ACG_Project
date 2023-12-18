@@ -99,7 +99,7 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
           coords = edgeMidPoint(currentEdge);
           valence = 3;
         } else {
-          coords = edgePoint(currentEdge);
+          coords = smoothEdgePoint(currentEdge);
           valence = 4;
         }
       } else { // sharp rule
@@ -125,12 +125,12 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
       if (vertices[v].isBoundaryVertex()) {
         coords = boundaryVertexPoint(vertices[v]);
       } else {
-        coords = vertexPoint(vertices[v]);
+        coords = smoothVertexPoint(vertices[v]);
       }
       qDebug() << "dart";
     } else if (sharpCount == 2){ //crease
       // A vertex with two incident sharp edges (crease vertex) is computed with the crease rule.
-      coords = creasePoint(vertices[v]);
+      coords = creaseVertexPoint(vertices[v]);
       qDebug() << "crease";
     } else { //corner
       // A vertex with three or more incident sharp edges (corner) doesn't move.
@@ -142,7 +142,7 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
 }
 
 /**
- * @brief CatmullClarkSubdivider::vertexPoint Calculates the new position of the
+ * @brief CatmullClarkSubdivider::smoothVertexPoint Calculates the new position of the
  * provided vertex. It does so according to the formula for smooth vertex
  * points:
  *
@@ -161,7 +161,7 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
  * vertex is the vertex from the control mesh.
  * @return The coordinates of the new vertex point.
  */
-QVector3D CatmullClarkSubdivider::vertexPoint(const Vertex &vertex) const {
+QVector3D CatmullClarkSubdivider::smoothVertexPoint(const Vertex &vertex) const {
   HalfEdge *edge = vertex.out;
   QVector3D R;  // average of edge mid points
   QVector3D Q;  // average of face points
@@ -178,20 +178,25 @@ QVector3D CatmullClarkSubdivider::vertexPoint(const Vertex &vertex) const {
 }
 
 /**
- * @brief CatmullClarkSubdivider::creasePoint
- * @param vertex
- * @return
+ * @brief CatmullClarkSubdivider::creaseVertexPoint Calculates the new position of a
+ * crease vertex. It does so according to the formula for sharp crease vertex
+ * points:
+ * R/8 + 6*V/8 + Q/8
+ * where
+ * V = the crease vertex
+ * R = the other vertex of the first sharp edge
+ * Q = the other vertex of the second sharp edge
+ * @param vertex The vertex to calculate the new position of.
+ * @return The coordinates of the new vertex point.
  */
-QVector3D CatmullClarkSubdivider::creasePoint(const Vertex &vertex) const {
+QVector3D CatmullClarkSubdivider::creaseVertexPoint(const Vertex &vertex) const {
   QVector3D newVertex;
   QVector <HalfEdge*> sharpEdges = vertex.getSharpEdges();
-  HalfEdge* R = sharpEdges.at(0);
-  HalfEdge* Q = sharpEdges.at(1);
 
-  QVector3D midR = R->twin->origin->coords;
-  QVector3D midQ = Q->twin->origin->coords;
+  QVector3D R = sharpEdges.at(0)->twin->origin->coords;
+  QVector3D Q = sharpEdges.at(1)->twin->origin->coords;
 
-  newVertex = 6*vertex.coords + midR + midQ;
+  newVertex = 6*vertex.coords + R + Q;
   return newVertex / 8;
 }
 
@@ -221,7 +226,7 @@ QVector3D CatmullClarkSubdivider::boundaryVertexPoint(
 }
 
 /**
- * @brief CatmullClarkSubdivider::edgePoint Calculates the position of the edge
+ * @brief CatmullClarkSubdivider::smoothEdgePoint Calculates the position of the edge
  * point according to the formula for smooth edge points:
  *
  * (M + Q) / 2
@@ -237,7 +242,7 @@ QVector3D CatmullClarkSubdivider::boundaryVertexPoint(
  * mesh.
  * @return The coordinates of the new edge point.
  */
-QVector3D CatmullClarkSubdivider::edgePoint(const HalfEdge &edge) const {
+QVector3D CatmullClarkSubdivider::smoothEdgePoint(const HalfEdge &edge) const {
   QVector3D edgePt = edgeMidPoint(edge);
   edgePt += (facePoint(*edge.face) + facePoint(*edge.twin->face)) / 2.0;
   return edgePt /= 2.0;
