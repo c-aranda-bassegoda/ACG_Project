@@ -79,7 +79,7 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
 
   // Edge Points
   QVector<HalfEdge> &halfEdges = controlMesh.getHalfEdges();
-  //halfEdges[1].setSharpness(3);
+  //halfEdges[2].setSharpness(3);
   qDebug()<<halfEdges[1].origin->insidentSharpEdges;
   for (int h = 0; h < controlMesh.numHalfEdges(); h++) {
     HalfEdge currentEdge = halfEdges[h];
@@ -87,23 +87,30 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
     // edge)
     int sharpness = currentEdge.getSharpness();
     if (h > currentEdge.twinIdx()) { // smooth rule
+      int v = controlMesh.numVerts() + controlMesh.numFaces() +
+                currentEdge.edgeIdx();
+      int valence;
+      QVector3D coords;
       if(sharpness == 0){
-        int v = controlMesh.numVerts() + controlMesh.numFaces() +
-                    currentEdge.edgeIdx();
-        int valence;
-        QVector3D coords;
         if (currentEdge.isBoundaryEdge()) {
-          coords = boundaryEdgePoint(currentEdge);
+          coords = edgeMidPoint(currentEdge);
           valence = 3;
         } else {
           coords = edgePoint(currentEdge);
           valence = 4;
         }
-        newVertices[v] = Vertex(coords, nullptr, valence, v);
       } else { // sharp rule
-        // TODO: edge point is placed at the edge midpoint
+        // A sharp edge point is always placed at the edge midpoint
+        if (currentEdge.isBoundaryEdge()) {
+          coords = edgeMidPoint(currentEdge);
+          valence = 3;
+        } else {
+          coords = edgeMidPoint(currentEdge);
+          valence = 4;
+        }
         currentEdge.setSharpness(sharpness-1);
       }
+      newVertices[v] = Vertex(coords, nullptr, valence, v);
     }
   }
 
@@ -178,8 +185,8 @@ QVector3D CatmullClarkSubdivider::vertexPoint(const Vertex &vertex) const {
 QVector3D CatmullClarkSubdivider::boundaryVertexPoint(
     const Vertex &vertex) const {
   QVector3D boundPoint = vertex.coords * 2;
-  boundPoint += boundaryEdgePoint(*vertex.nextBoundaryHalfEdge());
-  boundPoint += boundaryEdgePoint(*vertex.prevBoundaryHalfEdge());
+  boundPoint += edgeMidPoint(*vertex.nextBoundaryHalfEdge());
+  boundPoint += edgeMidPoint(*vertex.prevBoundaryHalfEdge());
   return boundPoint / 4.0;
 }
 
@@ -201,20 +208,20 @@ QVector3D CatmullClarkSubdivider::boundaryVertexPoint(
  * @return The coordinates of the new edge point.
  */
 QVector3D CatmullClarkSubdivider::edgePoint(const HalfEdge &edge) const {
-  QVector3D edgePt = boundaryEdgePoint(edge);
+  QVector3D edgePt = edgeMidPoint(edge);
   edgePt += (facePoint(*edge.face) + facePoint(*edge.twin->face)) / 2.0;
   return edgePt /= 2.0;
 }
 
 /**
- * @brief CatmullClarkSubdivider::boundaryEdgePoint Calculates the position of
- * the boundary edge point by taking the midpoint of the edge.
+ * @brief CatmullClarkSubdivider::edgeMidPoint Calculates the position of
+ * a boundary edge point or a sharp edge point by taking the midpoint of the edge.
  * @param edge One of the half-edges that lives on the edge to calculate
  * the edge point. Note that this half-edge is the half-edge from the control
  * mesh.
  * @return The coordinates of the new boundary edge point.
  */
-QVector3D CatmullClarkSubdivider::boundaryEdgePoint(
+QVector3D CatmullClarkSubdivider::edgeMidPoint(
     const HalfEdge &edge) const {
   return (edge.origin->coords + edge.next->origin->coords) / 2.0f;
 }

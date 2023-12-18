@@ -23,7 +23,7 @@ class CatmullClarkSubdivider : public Subdivider {
 
   QVector3D facePoint(const Face& face) const;
   QVector3D edgePoint(const HalfEdge& edge) const;
-  QVector3D boundaryEdgePoint(const HalfEdge& edge) const;
+  QVector3D edgeMidPoint(const HalfEdge& edge) const;
   QVector3D vertexPoint(const Vertex& vertex) const;
   QVector3D boundaryVertexPoint(const Vertex& vertex) const;
 };
