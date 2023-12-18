@@ -79,31 +79,34 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
 
   // Edge Points
   QVector<HalfEdge> &halfEdges = controlMesh.getHalfEdges();
-  halfEdges[1].setSharpness(3);
-  qDebug()<<halfEdges[1].origin->valence;
+  //halfEdges[1].setSharpness(3);
+  qDebug()<<halfEdges[1].origin->insidentSharpEdges;
   for (int h = 0; h < controlMesh.numHalfEdges(); h++) {
     HalfEdge currentEdge = halfEdges[h];
     // Only create a new vertex per set of halfEdges (i.e. once per undirected
     // edge)
     int sharpness = currentEdge.getSharpness();
-    if (h > currentEdge.twinIdx() /*&& sharpness == 0*/) { // smooth rule
-      int v = controlMesh.numVerts() + controlMesh.numFaces() +
-              currentEdge.edgeIdx();
-      int valence;
-      QVector3D coords;
-      if (currentEdge.isBoundaryEdge()) {
-        coords = boundaryEdgePoint(currentEdge);
-        valence = 3;
-      } else {
-        coords = edgePoint(currentEdge);
-        valence = 4;
+    if (h > currentEdge.twinIdx()) { // smooth rule
+      if(sharpness == 0){
+        int v = controlMesh.numVerts() + controlMesh.numFaces() +
+                    currentEdge.edgeIdx();
+        int valence;
+        QVector3D coords;
+        if (currentEdge.isBoundaryEdge()) {
+          coords = boundaryEdgePoint(currentEdge);
+          valence = 3;
+        } else {
+          coords = edgePoint(currentEdge);
+          valence = 4;
+        }
+        newVertices[v] = Vertex(coords, nullptr, valence, v);
+      } else { // sharp rule
+        // TODO: edge point is placed at the edge midpoint
+        currentEdge.setSharpness(sharpness-1);
       }
-      newVertices[v] = Vertex(coords, nullptr, valence, v);
-    } else { // sharp rule
-      // TODO: edge point is placed at the edge midpoint
-      currentEdge.setSharpness(sharpness-1);
     }
   }
+
   // Vertex Points
   // A vertex with one sharp edge (dart) is placed using the smooth vertex rule.
   // A vertex with two incident sharp edges (crease vertex) is computed with the crease rule.

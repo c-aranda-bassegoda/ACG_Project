@@ -110,20 +110,27 @@ void Vertex::recalculateValence() {
  */
 void Vertex::recalculateSharpInsidence() {
   HalfEdge* currentEdge = out->prev->twin;
-  int n = (out->getSharpness()==0 ? 0 : 1);
+  int n = (out->getSharpness()>0 ? 1 : 0);
+  qDebug() << out->getSharpness() << n;
   while (currentEdge != nullptr && currentEdge != out) {
     currentEdge = currentEdge->prev->twin;
-    if(currentEdge->getSharpness()>0)
+    if(currentEdge->getSharpness()>0){
       n++;
+    }
+    qDebug() << ": " << n;
   }
   currentEdge = out->twin;
   while (currentEdge != nullptr && currentEdge->next != out) {
     currentEdge = currentEdge->next->twin;
-    if(currentEdge->getSharpness()>0)
+    if(currentEdge->getSharpness()>0){
       n++;
+    }
+    qDebug() << ":: " << n;
   }
   insidentSharpEdges = n;
   qDebug() << "sharpness: " << n;
+  qDebug() << "valence: " << valence;
+
 }
 
 /**

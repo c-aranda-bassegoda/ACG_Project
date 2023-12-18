@@ -39,7 +39,7 @@ class HalfEdge {
   int edgeIndex;
 
   private:
-  int sharpness;
+  int sharpness = 0;
 };
 
 #endif  // HALFEDGE
