@@ -97,6 +97,12 @@ void Mesh::extractAttributes() {
   quadIndices.squeeze();
 }
 
+void Mesh::setMeshSharpness(int value) {
+  for(int i=0; i<halfEdges.size(); ++i){
+    halfEdges.value(i).setSharpness(value);
+  }
+}
+
 /**
  * @brief Mesh::numVerts Retrieves the number of vertices.
  * @return The number of vertices.

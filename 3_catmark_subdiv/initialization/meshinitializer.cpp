@@ -166,3 +166,4 @@ void MeshInitializer::setTwins(Mesh& mesh, int h, int vertIdx1, int vertIdx2) {
     twinEdge->twin = &mesh.halfEdges[h];
   }
 }
+

@@ -27,6 +27,7 @@ class Mesh {
 
   void extractAttributes();
   void recalculateNormals();
+  void setMeshSharpness(int value);
 
   int numVerts();
   int numHalfEdges();

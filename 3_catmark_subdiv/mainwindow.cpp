@@ -74,6 +74,10 @@ void MainWindow::on_SubdivSteps_valueChanged(int value) {
   delete subdivider;
 }
 
+void MainWindow::on_SharpnessLevel_valueChanged(int value) {
+
+}
+
 void MainWindow::on_TessellationCheckBox_toggled(bool checked) {
   ui->MainDisplay->settings.tesselationMode = checked;
   ui->tessSettingsGroupBox->setEnabled(checked);

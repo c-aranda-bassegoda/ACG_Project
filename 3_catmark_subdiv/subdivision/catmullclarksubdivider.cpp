@@ -79,11 +79,8 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
 
   // Edge Points
   QVector<HalfEdge> &halfEdges = controlMesh.getHalfEdges();
-  halfEdges[2].setSharpness(3);
-  halfEdges[3].setSharpness(3);
-  qDebug()<<halfEdges[1].origin->valence;
-  halfEdges[1].origin->recalculateValence();
-  qDebug()<<halfEdges[1].origin->valence;
+//  halfEdges[2].setSharpness(3);
+//  halfEdges[3].setSharpness(3);
   for (int h = 0; h < controlMesh.numHalfEdges(); h++) {
     HalfEdge currentEdge = halfEdges[h];
     // Only create a new vertex per set of halfEdges (i.e. once per undirected
@@ -127,15 +124,12 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
       } else {
         coords = smoothVertexPoint(vertices[v]);
       }
-      qDebug() << "dart";
     } else if (sharpCount == 2){ //crease
       // A vertex with two incident sharp edges (crease vertex) is computed with the crease rule.
       coords = creaseVertexPoint(vertices[v]);
-      qDebug() << "crease";
     } else { //corner
       // A vertex with three or more incident sharp edges (corner) doesn't move.
       coords = vertices[v].coords;
-      qDebug() << "corner";
     }
     newVertices[v] = Vertex(coords, nullptr, vertices[v].valence, v);
   }
