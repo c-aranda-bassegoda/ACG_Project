@@ -67,6 +67,14 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
   QVector<Vertex> &vertices = controlMesh.getVertices();
   QVector<Face> &faces = controlMesh.getFaces();
 
+  QVector<HalfEdge> &halfEdges = controlMesh.getHalfEdges();
+  // halfEdges[2].setSharpness(3);
+  // halfEdges[3].setSharpness(3);
+  // for (int i = 0; i < halfEdges.size(); i++){
+  //   halfEdges[i].setSharpness(2);
+  // }
+
+
   // Face Points
   for (int f = 0; f < controlMesh.numFaces(); f++) {
     // face points are always at centroids regardless of sharpness
@@ -78,9 +86,6 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
   }
 
   // Edge Points
-  QVector<HalfEdge> &halfEdges = controlMesh.getHalfEdges();
-//  halfEdges[2].setSharpness(3);
-//  halfEdges[3].setSharpness(3);
   for (int h = 0; h < controlMesh.numHalfEdges(); h++) {
     HalfEdge currentEdge = halfEdges[h];
     // Only create a new vertex per set of halfEdges (i.e. once per undirected
@@ -107,16 +112,21 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
         } else {
           valence = 4;
         }
-        currentEdge.setSharpness(sharpness-1);
+        // currentEdge.setSharpness(sharpness-1);
       }
       newVertices[v] = Vertex(coords, nullptr, valence, v);
     }
   }
 
+
   // Vertex Points
   for (int v = 0; v < controlMesh.numVerts(); v++) {
     QVector3D coords;
+    qDebug() << "It gets here";
+    vertices[v].recalculateSharpIncidence();
+    qDebug() << "But not here";
     int sharpCount = vertices[v].incidentSharpEdges;
+    qDebug() << "sharpcount: " << sharpCount;
     if (sharpCount<=1){ // dart or smooth
       // A vertex with one sharp edge (dart) is placed using the smooth vertex rule.
       if (vertices[v].isBoundaryVertex()) {
@@ -313,10 +323,15 @@ void CatmullClarkSubdivider::topologyRefinement(Mesh &controlMesh,
     int edgeIdx4 = 2 * edge->prev->edgeIndex +
                    (edge->prevIdx() > edge->prev->twinIdx() ? 1 : 0);
 
-    setHalfEdgeData(newMesh, h1, edgeIdx1, vertIdx1, twinIdx1);
-    setHalfEdgeData(newMesh, h2, edgeIdx2, vertIdx2, twinIdx2);
-    setHalfEdgeData(newMesh, h3, edgeIdx3, vertIdx3, twinIdx3);
-    setHalfEdgeData(newMesh, h4, edgeIdx4, vertIdx4, twinIdx4);
+    int edgeShrp1 = edge->getSharpness();
+    int edgeShrp2 = edge->getSharpness();
+    int edgeShrp3 = edge->getSharpness();
+    int edgeShrp4 = edge->getSharpness();
+
+    setHalfEdgeData(newMesh, h1, edgeIdx1, vertIdx1, twinIdx1, edgeShrp1);
+    setHalfEdgeData(newMesh, h2, edgeIdx2, vertIdx2, twinIdx2, edgeShrp2);
+    setHalfEdgeData(newMesh, h3, edgeIdx3, vertIdx3, twinIdx3, edgeShrp3);
+    setHalfEdgeData(newMesh, h4, edgeIdx4, vertIdx4, twinIdx4, edgeShrp4);
   }
 }
 
@@ -331,7 +346,7 @@ void CatmullClarkSubdivider::topologyRefinement(Mesh &controlMesh,
  * on a boundary.
  */
 void CatmullClarkSubdivider::setHalfEdgeData(Mesh &newMesh, int h, int edgeIdx,
-                                             int vertIdx, int twinIdx) const {
+                                             int vertIdx, int twinIdx, int sharpness) const {
   HalfEdge *halfEdge = &newMesh.halfEdges[h];
 
   halfEdge->edgeIndex = edgeIdx;
@@ -345,4 +360,6 @@ void CatmullClarkSubdivider::setHalfEdgeData(Mesh &newMesh, int h, int edgeIdx,
   halfEdge->origin->out = halfEdge;
   halfEdge->origin->index = vertIdx;
   halfEdge->face->side = halfEdge;
+
+  halfEdge->setSharpness(sharpness - 1);
 }

@@ -66,16 +66,31 @@ void MainWindow::on_MeshPresetComboBox_currentTextChanged(
 }
 
 void MainWindow::on_SubdivSteps_valueChanged(int value) {
+  ui->MainDisplay->settings.subdivSteps = value;
   Subdivider* subdivider = new CatmullClarkSubdivider();
   for (int k = meshes.size() - 1; k < value; k++) {
     meshes.append(subdivider->subdivide(meshes[k]));
   }
   ui->MainDisplay->updateBuffers(meshes[value]);
   delete subdivider;
+  qDebug() << "SubdivSteps value changed\n";
 }
 
-void MainWindow::on_SharpnessLevel_valueChanged(int value) {
+void MainWindow::on_SharpSteps_valueChanged(int value) {
+  QVector<HalfEdge>& halfedges = meshes[0].getHalfEdges();
+  for (int i = 0; i < halfedges.size(); i++){
+    qDebug() << halfedges[i].getSharpness() << i;
+    halfedges[i].setSharpness(value);
+    qDebug() << halfedges[i].getSharpness() << i;
+  }
+  qDebug() << "SharpnessLevel value changed\n";
 
+  Subdivider* subdivider = new CatmullClarkSubdivider();
+  for (int k = 1; k <= ui->MainDisplay->settings.subdivSteps; k++) {
+      meshes[k] = subdivider->subdivide(meshes[k - 1]);
+  }
+  ui->MainDisplay->updateBuffers(meshes[ui->MainDisplay->settings.subdivSteps]);
+  delete subdivider;
 }
 
 void MainWindow::on_TessellationCheckBox_toggled(bool checked) {

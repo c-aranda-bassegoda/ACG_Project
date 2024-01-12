@@ -97,13 +97,11 @@ void Vertex::recalculateValence() {
     currentEdge = currentEdge->prev->twin;
     n++;
   }
-// WHY IS THIS HERE?
-//  currentEdge = out->twin;
-//  while (currentEdge != nullptr && currentEdge->next != out) {
-//    currentEdge = currentEdge->next->twin;
-//    n++;
-//    qDebug() << "v:: " << n;
-//  }
+  currentEdge = out->twin;
+  while (currentEdge != nullptr && currentEdge->next != out) {
+    currentEdge = currentEdge->next->twin;
+    n++;
+  }
   valence = n;
 }
 
@@ -112,14 +110,32 @@ void Vertex::recalculateValence() {
  * sharp edges of this vertex.
  */
 void Vertex::recalculateSharpIncidence() {
-  HalfEdge* currentEdge = out->prev->twin;
-  int n = 0;
-  while (currentEdge != nullptr && currentEdge != out) {
-    currentEdge = currentEdge->prev->twin;
-    if(currentEdge->getSharpness()>0){
-      n++;
+    HalfEdge* currentEdge = out;
+    int n = currentEdge != nullptr && currentEdge->getSharpness() > 0? 1 : 0;
+    while (currentEdge != nullptr) {
+      currentEdge = currentEdge->prev;
+      int prevSharp = currentEdge != nullptr && currentEdge->getSharpness() > 0 ? 1 : 0;
+      currentEdge = currentEdge->twin;
+      if (currentEdge == out) break;
+      if (currentEdge != nullptr){
+        n += currentEdge->getSharpness() > 0? 1 : 0;
+      } else {
+        n += prevSharp;
+      }
     }
-  }
+    if (currentEdge == nullptr) {
+      currentEdge = out->twin;
+      while (currentEdge != nullptr && currentEdge->next != out) {
+        currentEdge = currentEdge->next;
+        int prevSharp = currentEdge != nullptr && currentEdge->getSharpness() > 0 ? 1 : 0;
+        currentEdge =currentEdge->twin;
+        if (currentEdge != nullptr){
+          n += currentEdge->getSharpness() > 0? 1 : 0;
+        } else {
+          n += prevSharp;
+        }
+      }
+    }
   incidentSharpEdges = n;
 }
 

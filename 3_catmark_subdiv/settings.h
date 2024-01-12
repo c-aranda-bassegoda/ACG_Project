@@ -25,6 +25,7 @@ typedef struct Settings {
 
   QMatrix4x4 modelViewMatrix, projectionMatrix;
   QMatrix3x3 normalMatrix;
+  int subdivSteps = 0;
 } Settings;
 
 #endif  // SETTINGS_H
