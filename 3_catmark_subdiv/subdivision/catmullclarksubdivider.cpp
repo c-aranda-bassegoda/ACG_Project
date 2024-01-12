@@ -67,14 +67,6 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
   QVector<Vertex> &vertices = controlMesh.getVertices();
   QVector<Face> &faces = controlMesh.getFaces();
 
-  QVector<HalfEdge> &halfEdges = controlMesh.getHalfEdges();
-  // halfEdges[2].setSharpness(3);
-  // halfEdges[3].setSharpness(3);
-  // for (int i = 0; i < halfEdges.size(); i++){
-  //   halfEdges[i].setSharpness(2);
-  // }
-
-
   // Face Points
   for (int f = 0; f < controlMesh.numFaces(); f++) {
     // face points are always at centroids regardless of sharpness
@@ -86,6 +78,7 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
   }
 
   // Edge Points
+  QVector<HalfEdge> &halfEdges = controlMesh.getHalfEdges();
   for (int h = 0; h < controlMesh.numHalfEdges(); h++) {
     HalfEdge currentEdge = halfEdges[h];
     // Only create a new vertex per set of halfEdges (i.e. once per undirected
@@ -122,11 +115,8 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
   // Vertex Points
   for (int v = 0; v < controlMesh.numVerts(); v++) {
     QVector3D coords;
-    qDebug() << "It gets here";
     vertices[v].recalculateSharpIncidence();
-    qDebug() << "But not here";
     int sharpCount = vertices[v].incidentSharpEdges;
-    qDebug() << "sharpcount: " << sharpCount;
     if (sharpCount<=1){ // dart or smooth
       // A vertex with one sharp edge (dart) is placed using the smooth vertex rule.
       if (vertices[v].isBoundaryVertex()) {

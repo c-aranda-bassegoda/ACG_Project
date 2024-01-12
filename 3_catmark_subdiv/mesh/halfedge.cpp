@@ -142,6 +142,5 @@ void HalfEdge::setSharpness(int sharp){
   if(twin != nullptr) {
     twin->sharpness = sharp;
   }
-  // origin->recalculateSharpIncidence();
 }
 

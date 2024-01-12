@@ -79,9 +79,7 @@ void MainWindow::on_SubdivSteps_valueChanged(int value) {
 void MainWindow::on_SharpSteps_valueChanged(int value) {
   QVector<HalfEdge>& halfedges = meshes[0].getHalfEdges();
   for (int i = 0; i < halfedges.size(); i++){
-    qDebug() << halfedges[i].getSharpness() << i;
     halfedges[i].setSharpness(value);
-    qDebug() << halfedges[i].getSharpness() << i;
   }
   qDebug() << "SharpnessLevel value changed\n";
 

@@ -81,7 +81,7 @@ QGroupBox::title {
          <x>10</x>
          <y>110</y>
          <width>201</width>
-         <height>111</height>
+         <height>141</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -122,6 +122,27 @@ QGroupBox::title {
            <string>Tessellation</string>
           </property>
          </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="sharpnessLayout">
+          <item>
+           <widget class="QLabel" name="SharpLabel">
+            <property name="text">
+             <string>Sharpness:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="SharpSteps">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="maximum">
+             <number>8</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
@@ -204,7 +225,7 @@ QGroupBox::title {
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>230</y>
+         <y>270</y>
          <width>201</width>
          <height>71</height>
         </rect>
@@ -231,42 +252,6 @@ QGroupBox::title {
            <string>Hide CPU Mesh</string>
           </property>
          </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QGroupBox" name="MeshGroupBox_2">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>310</y>
-         <width>201</width>
-         <height>81</height>
-        </rect>
-       </property>
-       <property name="title">
-        <string>Sharpness Settings</string>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <layout class="QHBoxLayout" name="sharpnessLayout">
-          <item>
-           <widget class="QLabel" name="SharpLabel">
-            <property name="text">
-             <string>Sharpness:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="SharpSteps">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="maximum">
-             <number>8</number>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
        </layout>
       </widget>
