@@ -79,6 +79,7 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
 
   // Edge Points
   QVector<HalfEdge> &halfEdges = controlMesh.getHalfEdges();
+  //halfEdges[1].setSharpness(0.5);
   for (int h = 0; h < controlMesh.numHalfEdges(); h++) {
     HalfEdge currentEdge = halfEdges[h];
     // Only create a new vertex per set of halfEdges (i.e. once per undirected
@@ -88,25 +89,46 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
       int v = controlMesh.numVerts() + controlMesh.numFaces() +
                 currentEdge.edgeIdx();
       int valence;
-      QVector3D coords;
-      if(sharpness == 0){
-        if (currentEdge.isBoundaryEdge()) {
-          coords = edgeMidPoint(currentEdge);
-          valence = 3;
-        } else {
-          coords = smoothEdgePoint(currentEdge);
-          valence = 4;
+      QVector3D coordsSmooth, coordsSharp, coords;
+      coordsSharp = edgeMidPoint(currentEdge);  for (int h = 0; h < controlMesh.numHalfEdges(); h++) {
+          HalfEdge currentEdge = halfEdges[h];
+          // Only create a new vertex per set of halfEdges (i.e. once per undirected
+          // edge)
+          double sharpness = currentEdge.getSharpness();
+          if (h > currentEdge.twinIdx()) { // smooth rule
+            int v = controlMesh.numVerts() + controlMesh.numFaces() +
+                      currentEdge.edgeIdx();
+            int valence;
+            QVector3D coords;
+            if(sharpness == 0){
+              if (currentEdge.isBoundaryEdge()) {
+                coords = edgeMidPoint(currentEdge);
+                valence = 3;
+              } else {
+                coords = smoothEdgePoint(currentEdge);
+                valence = 4;
+              }
+            } else { // sharp rule
+              // A sharp edge point is always placed at the edge midpoint
+              coords = edgeMidPoint(currentEdge);
+              if (currentEdge.isBoundaryEdge()) {
+                valence = 3;
+              } else {
+                valence = 4;
+              }
+              // currentEdge.setSharpness(sharpness-1);
+            }
+            newVertices[v] = Vertex(coords, nullptr, valence, v);
+          }
         }
-      } else { // sharp rule
-        // A sharp edge point is always placed at the edge midpoint
-        coords = edgeMidPoint(currentEdge);
-        if (currentEdge.isBoundaryEdge()) {
+      if (currentEdge.isBoundaryEdge()) {
+          coordsSmooth = edgeMidPoint(currentEdge);
           valence = 3;
-        } else {
+      } else {
+          coordsSmooth = smoothEdgePoint(currentEdge);
           valence = 4;
-        }
-        // currentEdge.setSharpness(sharpness-1);
       }
+      coords = sharpness > 1 ? coordsSharp : (1 - sharpness) * coordsSmooth + sharpness * coordsSharp;
       newVertices[v] = Vertex(coords, nullptr, valence, v);
     }
   }
