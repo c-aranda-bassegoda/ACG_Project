@@ -179,6 +179,42 @@ QVector<Vertex*> Vertex::getVerticesOfSharpEdges() const {
 }
 
 /**
+ * @brief Vertex::getAvgSharpness Calculates the average sharpness of incident
+ * sharp edges. Works similarly to Vertex::recalculateSharpIncidence.
+ * @return Average sharpness of incident sharp edges.
+ */
+double Vertex::getAvgSharpness() const {
+  HalfEdge* currentEdge = out;
+  double avgSharpness = currentEdge != nullptr && currentEdge->getSharpness() > 0? currentEdge->getSharpness() : 0;
+  while (currentEdge != nullptr) {
+      currentEdge = currentEdge->prev;
+      double prevSharp = currentEdge->getSharpness() > 0 ? currentEdge->getSharpness() : 0;
+      currentEdge = currentEdge->twin;
+      if (currentEdge == out) break;
+      if (currentEdge != nullptr){
+        avgSharpness += currentEdge->getSharpness() > 0? currentEdge->getSharpness() : 0;
+      } else {
+        avgSharpness += prevSharp;
+      }
+  }
+  if (currentEdge == nullptr) {
+      currentEdge = out->twin;
+      while (currentEdge != nullptr && currentEdge->next != out) {
+        currentEdge = currentEdge->next;
+        double prevSharp = currentEdge->getSharpness() > 0 ? currentEdge->getSharpness() : 0;
+        currentEdge =currentEdge->twin;
+        if (currentEdge != nullptr){
+          avgSharpness += currentEdge->getSharpness() > 0? currentEdge->getSharpness() : 0;
+        } else {
+          avgSharpness += prevSharp;
+        }
+      }
+  }
+  avgSharpness = avgSharpness/incidentSharpEdges;
+  return avgSharpness;
+}
+
+/**
  * @brief Vertex::debugInfo Prints some debug info of this vertex.
  */
 void Vertex::debugInfo() const {
