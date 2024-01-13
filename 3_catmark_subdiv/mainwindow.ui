@@ -130,7 +130,7 @@ QGroupBox::title {
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="SharpSteps">
+           <widget class="QDoubleSpinBox" name="SharpSteps">
             <property name="enabled">
              <bool>true</bool>
             </property>
