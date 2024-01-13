@@ -83,7 +83,7 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
     HalfEdge currentEdge = halfEdges[h];
     // Only create a new vertex per set of halfEdges (i.e. once per undirected
     // edge)
-    int sharpness = currentEdge.getSharpness();
+    double sharpness = currentEdge.getSharpness();
     if (h > currentEdge.twinIdx()) { // smooth rule
       int v = controlMesh.numVerts() + controlMesh.numFaces() +
                 currentEdge.edgeIdx();
@@ -336,7 +336,7 @@ void CatmullClarkSubdivider::topologyRefinement(Mesh &controlMesh,
  * on a boundary.
  */
 void CatmullClarkSubdivider::setHalfEdgeData(Mesh &newMesh, int h, int edgeIdx,
-                                             int vertIdx, int twinIdx, int sharpness) const {
+                                             int vertIdx, int twinIdx, double sharpness) const {
   HalfEdge *halfEdge = &newMesh.halfEdges[h];
 
   halfEdge->edgeIndex = edgeIdx;

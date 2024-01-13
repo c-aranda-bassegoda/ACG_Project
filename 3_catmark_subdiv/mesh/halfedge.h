@@ -26,8 +26,8 @@ class HalfEdge {
 
   bool isBoundaryEdge() const;
 
-  inline int getSharpness() {return sharpness;}
-  void setSharpness(int sharp);
+  inline double getSharpness() {return sharpness;}
+  void setSharpness(double sharp);
 
   Vertex* origin;
   HalfEdge* next;
@@ -39,7 +39,7 @@ class HalfEdge {
   int edgeIndex;
 
   private:
-  int sharpness = 0;
+  double sharpness = 0;
 };
 
 #endif  // HALFEDGE
