@@ -134,7 +134,7 @@ bool HalfEdge::isBoundaryEdge() const { return twin == nullptr; }
  * @brief HalfEdge::setSharpness sets sharpness level to all of the edge.
  * @param sharp sharpness level
  */
-void HalfEdge::setSharpness(int sharp){
+void HalfEdge::setSharpness(double sharp){
   if(sharp<0){
     sharp = 0;
   }

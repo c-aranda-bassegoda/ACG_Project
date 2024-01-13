@@ -114,7 +114,7 @@ void Vertex::recalculateSharpIncidence() {
     int n = currentEdge != nullptr && currentEdge->getSharpness() > 0? 1 : 0;
     while (currentEdge != nullptr) {
       currentEdge = currentEdge->prev;
-      int prevSharp = currentEdge != nullptr && currentEdge->getSharpness() > 0 ? 1 : 0;
+      int prevSharp = currentEdge->getSharpness() > 0 ? 1 : 0;
       currentEdge = currentEdge->twin;
       if (currentEdge == out) break;
       if (currentEdge != nullptr){
@@ -127,7 +127,7 @@ void Vertex::recalculateSharpIncidence() {
       currentEdge = out->twin;
       while (currentEdge != nullptr && currentEdge->next != out) {
         currentEdge = currentEdge->next;
-        int prevSharp = currentEdge != nullptr && currentEdge->getSharpness() > 0 ? 1 : 0;
+        int prevSharp = currentEdge->getSharpness() > 0 ? 1 : 0;
         currentEdge =currentEdge->twin;
         if (currentEdge != nullptr){
           n += currentEdge->getSharpness() > 0? 1 : 0;
@@ -140,21 +140,42 @@ void Vertex::recalculateSharpIncidence() {
 }
 
 /**
- * @brief Vertex::getSharpEdges gets the sharp edges
- * incident to a vertex point
- * @return
+ * @brief Vertex::getVerticesOfSharpEdges gets the vertices at the opposite ends of
+ * sharp edges incident to this vertex point.
+ * @return A vector of vertices.
  */
-QVector<HalfEdge*> Vertex::getSharpEdges() const {
-  QVector<HalfEdge*> sharpEdges;
-  HalfEdge* currentEdge = out->prev->twin;
-  int n = 0;
-  while (currentEdge != nullptr && currentEdge != out) {
-    currentEdge = currentEdge->prev->twin;
-    if(currentEdge->getSharpness()>0){
-      sharpEdges.append(currentEdge);
-    }
+QVector<Vertex*> Vertex::getVerticesOfSharpEdges() const {
+  QVector<Vertex*> sharpEdgeVertices;
+  HalfEdge* currentEdge = out;
+  if(currentEdge->getSharpness() > 0)
+      sharpEdgeVertices.append(currentEdge->next->origin);
+  while (currentEdge != nullptr) {
+      currentEdge = currentEdge->prev;
+      HalfEdge* prevEdge = currentEdge;
+      currentEdge = currentEdge->twin;
+      if (currentEdge == out) break;
+      if (currentEdge != nullptr){
+        if(currentEdge->getSharpness() > 0)
+          sharpEdgeVertices.append(currentEdge->next->origin);
+      } else if(prevEdge->getSharpness()>0) {
+        sharpEdgeVertices.append(prevEdge->origin);
+      }
   }
-  return sharpEdges;
+  if (currentEdge == nullptr) {
+      currentEdge = out->twin;
+      while (currentEdge != nullptr && currentEdge->next != out) {
+        currentEdge = currentEdge->next;
+        HalfEdge* prevEdge = currentEdge;
+        currentEdge =currentEdge->twin;
+        if (currentEdge != nullptr){
+          if(currentEdge->getSharpness() > 0)
+              sharpEdgeVertices.append(currentEdge->next->origin);
+        } else if(prevEdge->getSharpness()>0) {
+          sharpEdgeVertices.append(prevEdge->origin);
+        }
+      }
+  }
+  return sharpEdgeVertices;
 }
 
 /**

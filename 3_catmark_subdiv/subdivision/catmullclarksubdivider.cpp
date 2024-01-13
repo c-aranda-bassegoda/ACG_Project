@@ -83,7 +83,7 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
     HalfEdge currentEdge = halfEdges[h];
     // Only create a new vertex per set of halfEdges (i.e. once per undirected
     // edge)
-    int sharpness = currentEdge.getSharpness();
+    double sharpness = currentEdge.getSharpness();
     if (h > currentEdge.twinIdx()) { // smooth rule
       int v = controlMesh.numVerts() + controlMesh.numFaces() +
                 currentEdge.edgeIdx();
@@ -185,10 +185,10 @@ QVector3D CatmullClarkSubdivider::smoothVertexPoint(const Vertex &vertex) const 
  */
 QVector3D CatmullClarkSubdivider::creaseVertexPoint(const Vertex &vertex) const {
   QVector3D newVertex;
-  QVector <HalfEdge*> sharpEdges = vertex.getSharpEdges();
+  QVector <Vertex*> oppositeVertices = vertex.getVerticesOfSharpEdges();
 
-  QVector3D R = sharpEdges.at(0)->twin->origin->coords;
-  QVector3D Q = sharpEdges.at(1)->twin->origin->coords;
+  QVector3D R = oppositeVertices.at(0)->coords;
+  QVector3D Q = oppositeVertices.at(1)->coords;
 
   newVertex = 6*vertex.coords + R + Q;
   return newVertex / 8;
@@ -336,7 +336,7 @@ void CatmullClarkSubdivider::topologyRefinement(Mesh &controlMesh,
  * on a boundary.
  */
 void CatmullClarkSubdivider::setHalfEdgeData(Mesh &newMesh, int h, int edgeIdx,
-                                             int vertIdx, int twinIdx, int sharpness) const {
+                                             int vertIdx, int twinIdx, double sharpness) const {
   HalfEdge *halfEdge = &newMesh.halfEdges[h];
 
   halfEdge->edgeIndex = edgeIdx;

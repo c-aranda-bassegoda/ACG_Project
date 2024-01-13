@@ -16,7 +16,7 @@ class Vertex {
 
   HalfEdge* nextBoundaryHalfEdge() const;
   HalfEdge* prevBoundaryHalfEdge() const;
-  QVector<HalfEdge*> getSharpEdges() const;
+  QVector<Vertex*> getVerticesOfSharpEdges() const;
   bool isBoundaryVertex() const;
   void recalculateValence();
   void recalculateSharpIncidence();
