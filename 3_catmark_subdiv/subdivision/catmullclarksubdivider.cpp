@@ -185,10 +185,10 @@ QVector3D CatmullClarkSubdivider::smoothVertexPoint(const Vertex &vertex) const 
  */
 QVector3D CatmullClarkSubdivider::creaseVertexPoint(const Vertex &vertex) const {
   QVector3D newVertex;
-  QVector <HalfEdge*> sharpEdges = vertex.getSharpEdges();
+  QVector <Vertex*> oppositeVertices = vertex.getVerticesOfSharpEdges();
 
-  QVector3D R = sharpEdges.at(0)->twin->origin->coords;
-  QVector3D Q = sharpEdges.at(1)->twin->origin->coords;
+  QVector3D R = oppositeVertices.at(0)->coords;
+  QVector3D Q = oppositeVertices.at(1)->coords;
 
   newVertex = 6*vertex.coords + R + Q;
   return newVertex / 8;
