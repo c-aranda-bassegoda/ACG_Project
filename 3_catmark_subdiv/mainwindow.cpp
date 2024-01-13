@@ -49,6 +49,7 @@ void MainWindow::importOBJ(const QString& fileName) {
 
   ui->MeshGroupBox->setEnabled(ui->MainDisplay->settings.modelLoaded);
   ui->SubdivSteps->setValue(0);
+  ui->SharpSteps->setValue(0);
   ui->MainDisplay->update();
 }
 
@@ -76,7 +77,7 @@ void MainWindow::on_SubdivSteps_valueChanged(int value) {
   qDebug() << "SubdivSteps value changed\n";
 }
 
-void MainWindow::on_SharpSteps_valueChanged(int value) {
+void MainWindow::on_SharpSteps_valueChanged(double value) {
   QVector<HalfEdge>& halfedges = meshes[0].getHalfEdges();
   for (int i = 0; i < halfedges.size(); i++){
     halfedges[i].setSharpness(value);

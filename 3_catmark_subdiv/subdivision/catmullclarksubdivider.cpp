@@ -79,6 +79,7 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
 
   // Edge Points
   QVector<HalfEdge> &halfEdges = controlMesh.getHalfEdges();
+  // halfEdges[1].setSharpness(0); // hardcode for testing purposes
   for (int h = 0; h < controlMesh.numHalfEdges(); h++) {
     HalfEdge currentEdge = halfEdges[h];
     // Only create a new vertex per set of halfEdges (i.e. once per undirected
@@ -88,25 +89,16 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
       int v = controlMesh.numVerts() + controlMesh.numFaces() +
                 currentEdge.edgeIdx();
       int valence;
-      QVector3D coords;
-      if(sharpness == 0){
-        if (currentEdge.isBoundaryEdge()) {
-          coords = edgeMidPoint(currentEdge);
+      QVector3D coordsSmooth, coordsSharp, coords;
+      coordsSharp = edgeMidPoint(currentEdge);
+      if (currentEdge.isBoundaryEdge()) {
+          coordsSmooth = edgeMidPoint(currentEdge);
           valence = 3;
-        } else {
-          coords = smoothEdgePoint(currentEdge);
+      } else {
+          coordsSmooth = smoothEdgePoint(currentEdge);
           valence = 4;
-        }
-      } else { // sharp rule
-        // A sharp edge point is always placed at the edge midpoint
-        coords = edgeMidPoint(currentEdge);
-        if (currentEdge.isBoundaryEdge()) {
-          valence = 3;
-        } else {
-          valence = 4;
-        }
-        // currentEdge.setSharpness(sharpness-1);
       }
+      coords = sharpness > 1 ? coordsSharp : (1 - sharpness) * coordsSmooth + sharpness * coordsSharp;
       newVertices[v] = Vertex(coords, nullptr, valence, v);
     }
   }
@@ -114,19 +106,25 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
 
   // Vertex Points
   for (int v = 0; v < controlMesh.numVerts(); v++) {
-    QVector3D coords;
+    QVector3D coordsSmooth, coords;
     vertices[v].recalculateSharpIncidence();
     int sharpCount = vertices[v].incidentSharpEdges;
+    if (vertices[v].isBoundaryVertex()) {
+      coordsSmooth = boundaryVertexPoint(vertices[v]);
+    } else {
+      coordsSmooth = smoothVertexPoint(vertices[v]);
+    }
     if (sharpCount<=1){ // dart or smooth
-      // A vertex with one sharp edge (dart) is placed using the smooth vertex rule.
-      if (vertices[v].isBoundaryVertex()) {
-        coords = boundaryVertexPoint(vertices[v]);
-      } else {
-        coords = smoothVertexPoint(vertices[v]);
-      }
+      coords = coordsSmooth;
     } else if (sharpCount == 2){ //crease
       // A vertex with two incident sharp edges (crease vertex) is computed with the crease rule.
       coords = creaseVertexPoint(vertices[v]);
+      // interpolate if average sharpness is less than 1
+      double avgSharpness = vertices[v].getAvgSharpness();
+      qDebug() << avgSharpness;
+      if (avgSharpness < 1) {
+        coords = (1 - avgSharpness) * coordsSmooth + avgSharpness * coords;
+      }
     } else { //corner
       // A vertex with three or more incident sharp edges (corner) doesn't move.
       coords = vertices[v].coords;
@@ -313,15 +311,15 @@ void CatmullClarkSubdivider::topologyRefinement(Mesh &controlMesh,
     int edgeIdx4 = 2 * edge->prev->edgeIndex +
                    (edge->prevIdx() > edge->prev->twinIdx() ? 1 : 0);
 
-    int edgeShrp1 = edge->getSharpness();
-    int edgeShrp2 = edge->getSharpness();
-    int edgeShrp3 = edge->getSharpness();
-    int edgeShrp4 = edge->getSharpness();
+    double edgeShrp1 = edge->getSharpness() - 1;
+    double edgeInnerShrp1 = 0;
+    double edgeInnerShrp2 = 0;
+    double edgeShrp2 = edge->prev->getSharpness() - 1;
 
     setHalfEdgeData(newMesh, h1, edgeIdx1, vertIdx1, twinIdx1, edgeShrp1);
-    setHalfEdgeData(newMesh, h2, edgeIdx2, vertIdx2, twinIdx2, edgeShrp2);
-    setHalfEdgeData(newMesh, h3, edgeIdx3, vertIdx3, twinIdx3, edgeShrp3);
-    setHalfEdgeData(newMesh, h4, edgeIdx4, vertIdx4, twinIdx4, edgeShrp4);
+    setHalfEdgeData(newMesh, h2, edgeIdx2, vertIdx2, twinIdx2, edgeInnerShrp1);
+    setHalfEdgeData(newMesh, h3, edgeIdx3, vertIdx3, twinIdx3, edgeInnerShrp2);
+    setHalfEdgeData(newMesh, h4, edgeIdx4, vertIdx4, twinIdx4, edgeShrp2);
   }
 }
 
@@ -351,5 +349,5 @@ void CatmullClarkSubdivider::setHalfEdgeData(Mesh &newMesh, int h, int edgeIdx,
   halfEdge->origin->index = vertIdx;
   halfEdge->face->side = halfEdge;
 
-  halfEdge->setSharpness(sharpness - 1);
+  halfEdge->setSharpness(sharpness);
 }

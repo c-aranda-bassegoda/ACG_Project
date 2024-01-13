@@ -109,9 +109,6 @@ QGroupBox::title {
             <property name="enabled">
              <bool>true</bool>
             </property>
-            <property name="maximum">
-             <number>8</number>
-            </property>
            </widget>
           </item>
          </layout>
@@ -133,12 +130,9 @@ QGroupBox::title {
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="SharpSteps">
+           <widget class="QDoubleSpinBox" name="SharpSteps">
             <property name="enabled">
              <bool>true</bool>
-            </property>
-            <property name="maximum">
-             <number>8</number>
             </property>
            </widget>
           </item>
