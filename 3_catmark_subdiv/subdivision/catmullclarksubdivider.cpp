@@ -311,15 +311,15 @@ void CatmullClarkSubdivider::topologyRefinement(Mesh &controlMesh,
     int edgeIdx4 = 2 * edge->prev->edgeIndex +
                    (edge->prevIdx() > edge->prev->twinIdx() ? 1 : 0);
 
-    int edgeShrp1 = edge->getSharpness();
-    int edgeShrp2 = edge->getSharpness();
-    int edgeShrp3 = edge->getSharpness();
-    int edgeShrp4 = edge->getSharpness();
+    double edgeShrp1 = edge->getSharpness() - 1;
+    double edgeInnerShrp1 = 0;
+    double edgeInnerShrp2 = 0;
+    double edgeShrp2 = edge->prev->getSharpness() - 1;
 
     setHalfEdgeData(newMesh, h1, edgeIdx1, vertIdx1, twinIdx1, edgeShrp1);
-    setHalfEdgeData(newMesh, h2, edgeIdx2, vertIdx2, twinIdx2, edgeShrp2);
-    setHalfEdgeData(newMesh, h3, edgeIdx3, vertIdx3, twinIdx3, edgeShrp3);
-    setHalfEdgeData(newMesh, h4, edgeIdx4, vertIdx4, twinIdx4, edgeShrp4);
+    setHalfEdgeData(newMesh, h2, edgeIdx2, vertIdx2, twinIdx2, edgeInnerShrp1);
+    setHalfEdgeData(newMesh, h3, edgeIdx3, vertIdx3, twinIdx3, edgeInnerShrp2);
+    setHalfEdgeData(newMesh, h4, edgeIdx4, vertIdx4, twinIdx4, edgeShrp2);
   }
 }
 
@@ -349,5 +349,5 @@ void CatmullClarkSubdivider::setHalfEdgeData(Mesh &newMesh, int h, int edgeIdx,
   halfEdge->origin->index = vertIdx;
   halfEdge->face->side = halfEdge;
 
-  halfEdge->setSharpness(sharpness - 1);
+  halfEdge->setSharpness(sharpness);
 }
