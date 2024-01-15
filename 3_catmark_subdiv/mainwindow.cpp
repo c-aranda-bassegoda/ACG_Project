@@ -79,9 +79,11 @@ void MainWindow::on_SubdivSteps_valueChanged(int value) {
 
 void MainWindow::on_SharpSteps_valueChanged(double value) {
   QVector<HalfEdge>& halfedges = meshes[0].getHalfEdges();
-  for (int i = 0; i < halfedges.size(); i++){
+  for (int i = 0; i < 3; i++){
     halfedges[i].setSharpness(value);
   }
+    halfedges[3].setSharpness(value+1);
+
   qDebug() << "SharpnessLevel value changed\n";
 
   Subdivider* subdivider = new CatmullClarkSubdivider();

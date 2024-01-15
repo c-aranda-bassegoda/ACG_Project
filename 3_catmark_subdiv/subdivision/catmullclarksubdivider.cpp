@@ -319,6 +319,18 @@ void CatmullClarkSubdivider::topologyRefinement(Mesh &controlMesh,
     double edgeInnerShrp2 = 0;
     double edgeShrp2 = edge->prev->getSharpness() - 1;
 
+    // Crease sharpness inheritance
+    if(edge->getSharpness()>0 && edge->prev->getSharpness()>0 && edge->origin->incidentSharpEdges == 2){
+        edgeShrp2 = 3*edge->getSharpness() + edge->prev->getSharpness();
+        edgeShrp2 /= 4;
+        edgeShrp2--;
+    }
+    if(edge->getSharpness()>0 && edge->next->getSharpness()>0 && edge->next->origin->incidentSharpEdges == 2){
+        edgeShrp1 = 3*edge->getSharpness() + edge->next->getSharpness();
+        edgeShrp1 /= 4;
+        edgeShrp1--;
+    }
+
     setHalfEdgeData(newMesh, h1, edgeIdx1, vertIdx1, twinIdx1, edgeShrp1);
     setHalfEdgeData(newMesh, h2, edgeIdx2, vertIdx2, twinIdx2, edgeInnerShrp1);
     setHalfEdgeData(newMesh, h3, edgeIdx3, vertIdx3, twinIdx3, edgeInnerShrp2);
