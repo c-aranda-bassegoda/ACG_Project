@@ -114,20 +114,23 @@ void CatmullClarkSubdivider::geometryRefinement(Mesh &controlMesh,
     } else {
       coordsSmooth = smoothVertexPoint(vertices[v]);
     }
+    // avgSharpness used to interpolate if average sharpness is less than 1
+    double avgSharpness = vertices[v].getAvgSharpness();
+
     if (sharpCount<=1){ // dart or smooth
       coords = coordsSmooth;
     } else if (sharpCount == 2){ //crease
       // A vertex with two incident sharp edges (crease vertex) is computed with the crease rule.
       coords = creaseVertexPoint(vertices[v]);
-      // interpolate if average sharpness is less than 1
-      double avgSharpness = vertices[v].getAvgSharpness();
-      qDebug() << avgSharpness;
       if (avgSharpness < 1) {
         coords = (1 - avgSharpness) * coordsSmooth + avgSharpness * coords;
       }
     } else { //corner
       // A vertex with three or more incident sharp edges (corner) doesn't move.
       coords = vertices[v].coords;
+      if (avgSharpness < 1) {
+          coords = (1 - avgSharpness) * coordsSmooth + avgSharpness * coords;
+      }
     }
     newVertices[v] = Vertex(coords, nullptr, vertices[v].valence, v);
   }
